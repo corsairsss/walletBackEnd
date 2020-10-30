@@ -67,13 +67,10 @@ async function addNewUser(req, res, next) {
       password: passwordHash,
       name,
     });
-
     const token = await checkUser(email, password);
-    return res.status(201).json({
-      email: user.email,
-      name: user.name,
-      token: token,
-    });
+    return res
+      .status(201)
+      .json({ token, user: { email: user.email, name: user.name } });
   } catch (err) {
     next(err);
   }
