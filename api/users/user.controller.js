@@ -68,9 +68,11 @@ async function addNewUser(req, res, next) {
       name,
     });
 
+    const token = await checkUser(email, password);
     return res.status(201).json({
       email: user.email,
       name: user.name,
+      token: token,
     });
   } catch (err) {
     next(err);
