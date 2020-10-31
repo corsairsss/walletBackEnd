@@ -3,7 +3,8 @@ const { ObjectId } = require('mongodb');
 const financeModel = require('./finance.model.js');
 const { UnauthorizedError } = require('../helpers/error.js');
 const jwt = require('jsonwebtoken');
-
+const axios = require('axios');
+const date = require('date-and-time');
 // async function getContact(req, res, next) {
 //   try {
 //     const contacts = await contactsModel.find();
@@ -161,12 +162,38 @@ async function authorize(req, res, next) {
 //   if (!ObjectId.isValid(id)) {
 //     return res.status(400).send();
 //   }
-
+// date-and-time
 //   next();
 // }
+
+async function getKurs(req, res, next) {
+  try {
+    const day = date.format(new Date(), 'DD', true);
+    const month = date.format(new Date(), 'MM', true);
+    const year = date.format(new Date(), 'YYYY', true);
+
+    const dates = `${day}.${month}.${year}`;
+    const apiPrivat = `https://api.privatbank.ua/p24api/exchange_rates?json&date=${dates}`;
+    const response = await axios.get(apiPrivat);
+    const { exchangeRate } = response.data;
+
+    const eur = exchangeRate.find(item => item.currency === 'EUR');
+    const usd = exchangeRate.find(item => item.currency === 'USD');
+    const rub = exchangeRate.find(item => item.currency === 'RUB');
+    const currency = [];
+    currency.push(usd);
+    currency.push(eur);
+    currency.push(rub);
+
+    return res.status(200).json(currency);
+  } catch (err) {
+    next(err);
+  }
+}
 
 module.exports = {
   addTr,
   getData,
   authorize,
+  getKurs,
 };

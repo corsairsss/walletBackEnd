@@ -17,8 +17,10 @@
   "dependencies": {
     "@sendgrid/mail": "^7.2.6",
     "avatar-generator": "^2.0.4",
+    "axios": "^0.21.0",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
+    "date-and-time": "^0.14.1",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "joi": "^17.2.1",
