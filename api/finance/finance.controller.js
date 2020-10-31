@@ -1,6 +1,8 @@
 const Joi = require('joi');
 const { ObjectId } = require('mongodb');
 const financeModel = require('./finance.model.js');
+const { UnauthorizedError } = require('../helpers/error.js');
+const jwt = require('jsonwebtoken');
 
 // async function getContact(req, res, next) {
 //   try {
@@ -34,8 +36,14 @@ async function addTr(req, res, next) {
   try {
     const { type } = req.body;
     const amount = +req.body.amount;
-    const allPositive = await financeModel.find({ type: '+' });
-    const allNegative = await financeModel.find({ type: '-' });
+    const allPositive = await financeModel.find({
+      type: '+',
+      userId: req.userId,
+    });
+    const allNegative = await financeModel.find({
+      type: '-',
+      userId: req.userId,
+    });
 
     if (type === '+' && allPositive.length > 0) {
       const { balance } = allPositive[allPositive.length - 1];
@@ -44,7 +52,7 @@ async function addTr(req, res, next) {
       const { balance } = allNegative[allNegative.length - 1];
       req.body.balance = balance + amount;
     } else req.body.balance = amount;
-
+    req.body.userId = req.userId;
     const tr = await financeModel.create(req.body);
     return res.status(201).json(tr);
   } catch (err) {
@@ -53,10 +61,45 @@ async function addTr(req, res, next) {
 }
 async function getData(req, res, next) {
   try {
-    const tr = await financeModel.find();
-    const { balance } = tr[tr.length - 1];
-    console.log(balance);
-    return res.status(200).json(tr);
+    const allTransaction = await financeModel.find({ userId: req.userId });
+    console.log(allTransaction);
+    return res.status(200).json(allTransaction);
+  } catch (err) {
+    next(err);
+  }
+}
+async function authorize(req, res, next) {
+  try {
+    // 1. витягнути токен користувача з заголовка Authorization
+    const authorizationHeader = req.get('Authorization') || '';
+    const token = authorizationHeader.replace('Bearer ', '');
+    // console.log('--------------', token);
+    // 2. витягнути id користувача з пейлоада або вернути користувачу
+    // помилку зі статус кодом 401
+    let userId;
+
+    try {
+      userId = await jwt.verify(token, process.env.JWT_SECRET).id;
+      // userId = await jwt.verify(token, process.env.JWT_SECRET).id;
+    } catch (err) {
+      next(new UnauthorizedError('User not authorized'));
+    }
+    // console.log('+++++++++++++', userId);
+    // 3. витягнути відповідного користувача. Якщо такого немає - викинути
+    // помилку зі статус кодом 401
+    // userModel - модель користувача в нашій системі
+    // const user = await usersModel.findById(userId);
+
+    // if (!user || user.token !== token) {
+    //   throw new UnauthorizedError('User not authorized');
+    // }
+
+    // 4. Якщо все пройшло успішно - передати запис користувача і токен в req
+    // і передати обробку запиту на наступний middleware
+    req.userId = userId;
+    // req.token = token;
+
+    next();
   } catch (err) {
     next(err);
   }
@@ -125,4 +168,5 @@ async function getData(req, res, next) {
 module.exports = {
   addTr,
   getData,
+  authorize,
 };

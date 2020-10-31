@@ -1,11 +1,11 @@
 const express = require('express');
 
-const { addTr, getData } = require('./finance.controller.js');
+const { addTr, getData, authorize } = require('./finance.controller.js');
 
 const userRouter = express.Router();
 
-userRouter.post('/addOperation', addTr);
-userRouter.get('/getdata', getData);
+userRouter.post('/addOperation', authorize, addTr);
+userRouter.get('/getdata', authorize, getData);
 
 // userRouter.get('/', getContact);
 // userRouter.get('/:id',validateId, getContactById);
