@@ -8,6 +8,8 @@ const financeSchema = new Schema({
   comments: { type: String, required: false },
   amount: { type: Number, required: true },
   balance: { type: Number, required: false, default: 0 },
+  globalBalance: { type: Number, required: false },
+
   userId: { type: String, required: false },
 });
 

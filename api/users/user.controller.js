@@ -60,7 +60,8 @@ async function addNewUser(req, res, next) {
 
     const isEmailExist = await usersModel.findUserByEmail(email);
 
-    if (isEmailExist) return res.status(409).json({ message: 'Email in use' });
+    if (isEmailExist)
+      return res.status(409).json({ message: 'Authentication failed' });
 
     const user = await usersModel.create({
       email,

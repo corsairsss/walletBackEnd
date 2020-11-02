@@ -49,11 +49,21 @@ async function addTr(req, res, next) {
     if (type === '+' && allPositive.length > 0) {
       const { balance } = allPositive[allPositive.length - 1];
       req.body.balance = balance + amount;
+      allPositive[allPositive.length - 1].balance = balance + amount;
     } else if (type === '-' && allNegative.length > 0) {
       const { balance } = allNegative[allNegative.length - 1];
       req.body.balance = balance + amount;
+      allNegative[allNegative.length - 1].balance = balance + amount;
     } else req.body.balance = amount;
+
+    const costs = allNegative[allNegative.length - 1].balance;
+    const inCome = allPositive[allPositive.length - 1].balance;
+    const balanceGlobal = inCome - costs;
+
     req.body.userId = req.userId;
+    req.body.globalBalance = balanceGlobal;
+    console.log('------------', req.body);
+
     const tr = await financeModel.create(req.body);
     return res.status(201).json(tr);
   } catch (err) {
@@ -66,13 +76,13 @@ async function getData(req, res, next) {
     console.log(allTransaction);
     return res.status(200).json(allTransaction);
   } catch (err) {
-        next(err);
+    next(err);
   }
 }
 
-async function getStats(req,res,next) {
+async function getStats(req, res, next) {
   try {
-    const userId=req.userId;
+    const userId = req.userId;
 
     const allCosts = await financeModel.find({
       type: '-',
@@ -83,23 +93,24 @@ async function getStats(req,res,next) {
       type: '+',
       userId: req.userId,
     });
-    const costs=allCosts[allCosts.length-1].balance;
-    const inCome=allInCome[allInCome.length-1].balance;
-    const balance=inCome-costs;
-      
-      const food=getStatsPercentage(allCosts,costs,'food');
-      const car=getStatsPercentage(allCosts,costs,'car');
-      const SelfCare=getStatsPercentage(allCosts,costs,'Self care');
-      const ChildCare=getStatsPercentage(allCosts,costs,'Child care');
-      const House=getStatsPercentage(allCosts,costs,'House');
-      const Education=getStatsPercentage(allCosts,costs,'Education');
-      const Enterteinment=getStatsPercentage(allCosts,costs,'Enterteinment');
-      const other=getStatsPercentage(allCosts,costs,'Others');
+    const costs = allCosts[allCosts.length - 1].balance;
+    const inCome = allInCome[allInCome.length - 1].balance;
+    const balance = inCome - costs;
 
-      const response={
-        costs,
-        inCome,
-        balance,
+    const food = getStatsPercentage(allCosts, costs, 'food');
+    const car = getStatsPercentage(allCosts, costs, 'car');
+    const SelfCare = getStatsPercentage(allCosts, costs, 'Self care');
+    const ChildCare = getStatsPercentage(allCosts, costs, 'Child care');
+    const House = getStatsPercentage(allCosts, costs, 'House');
+    const Education = getStatsPercentage(allCosts, costs, 'Education');
+    const Enterteinment = getStatsPercentage(allCosts, costs, 'Enterteinment');
+    const other = getStatsPercentage(allCosts, costs, 'Others');
+
+    const response = {
+      costs,
+      inCome,
+      balance,
+      stats: {
         food,
         car,
         SelfCare,
@@ -107,26 +118,24 @@ async function getStats(req,res,next) {
         House,
         Education,
         Enterteinment,
-        other
-      }
-    
-      return res.status(200).json(response);
+        other,
+      },
+    };
+
+    return res.status(200).json(response);
   } catch (err) {
-        next(err);
+    next(err);
   }
 }
 
-function getStatsPercentage(allCosts,costs,category) {
-      const arrayOneCategory=allCosts.filter(item=>item.category===category);
-      if (arrayOneCategory.length===0) return null;
-      const mapped=arrayOneCategory.map((item)=>item.amount)  ;
-      const resReduce=mapped.reduce((acc,item)=>acc+item);
-      const statsPercentage=resReduce*100/costs;
-      return statsPercentage;
-     
-    
+function getStatsPercentage(allCosts, costs, category) {
+  const arrayOneCategory = allCosts.filter(item => item.category === category);
+  if (arrayOneCategory.length === 0) return null;
+  const mapped = arrayOneCategory.map(item => item.amount);
+  const resReduce = mapped.reduce((acc, item) => acc + item);
+  const statsPercentage = (resReduce * 100) / costs;
+  return statsPercentage;
 }
-
 
 async function authorize(req, res, next) {
   try {
@@ -215,8 +224,6 @@ async function authorize(req, res, next) {
 //   next();
 // }
 
-
-
 async function getKurs(req, res, next) {
   try {
     const day = date.format(new Date(), 'DD', true);
@@ -247,5 +254,5 @@ module.exports = {
   getData,
   authorize,
   getKurs,
-  getStats
+  getStats,
 };
