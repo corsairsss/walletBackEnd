@@ -66,9 +66,68 @@ async function getData(req, res, next) {
     console.log(allTransaction);
     return res.status(200).json(allTransaction);
   } catch (err) {
-    next(err);
+        next(err);
   }
 }
+
+async function getStats(req,res,next) {
+  try {
+    const userId=req.userId;
+
+    const allCosts = await financeModel.find({
+      type: '-',
+      userId: req.userId,
+    });
+
+    const allInCome = await financeModel.find({
+      type: '+',
+      userId: req.userId,
+    });
+    const costs=allCosts[allCosts.length-1].balance;
+    const inCome=allInCome[allInCome.length-1].balance;
+    const balance=inCome-costs;
+      
+      const food=getStatsPercentage(allCosts,costs,'food');
+      const car=getStatsPercentage(allCosts,costs,'car');
+      const SelfCare=getStatsPercentage(allCosts,costs,'Self care');
+      const ChildCare=getStatsPercentage(allCosts,costs,'Child care');
+      const House=getStatsPercentage(allCosts,costs,'House');
+      const Education=getStatsPercentage(allCosts,costs,'Education');
+      const Enterteinment=getStatsPercentage(allCosts,costs,'Enterteinment');
+      const other=getStatsPercentage(allCosts,costs,'Others');
+
+      const response={
+        costs,
+        inCome,
+        balance,
+        food,
+        car,
+        SelfCare,
+        ChildCare,
+        House,
+        Education,
+        Enterteinment,
+        other
+      }
+    
+      return res.status(200).json(response);
+  } catch (err) {
+        next(err);
+  }
+}
+
+function getStatsPercentage(allCosts,costs,category) {
+      const arrayOneCategory=allCosts.filter(item=>item.category===category);
+      if (arrayOneCategory.length===0) return null;
+      const mapped=arrayOneCategory.map((item)=>item.amount)  ;
+      const resReduce=mapped.reduce((acc,item)=>acc+item);
+      const statsPercentage=resReduce*100/costs;
+      return statsPercentage;
+     
+    
+}
+
+
 async function authorize(req, res, next) {
   try {
     // 1. витягнути токен користувача з заголовка Authorization
@@ -156,15 +215,7 @@ async function authorize(req, res, next) {
 //   next();
 // }
 
-// function validateId(req, res, next) {
-//   const { id } = req.params;
 
-//   if (!ObjectId.isValid(id)) {
-//     return res.status(400).send();
-//   }
-// date-and-time
-//   next();
-// }
 
 async function getKurs(req, res, next) {
   try {
@@ -196,4 +247,5 @@ module.exports = {
   getData,
   authorize,
   getKurs,
+  getStats
 };
