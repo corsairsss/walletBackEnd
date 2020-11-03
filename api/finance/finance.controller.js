@@ -56,12 +56,12 @@ async function addTr(req, res, next) {
       allNegative[allNegative.length - 1].balance = balance + amount;
     } else req.body.balance = amount;
 
-    const costs = allNegative[allNegative.length - 1].balance;
-    const inCome = allPositive[allPositive.length - 1].balance;
-    const balanceGlobal = inCome - costs;
+    // const costs = allNegative[allNegative.length - 1].balance;
+    // const inCome = allPositive[allPositive.length - 1].balance;
+    // const balanceGlobal = inCome - costs;
 
     req.body.userId = req.userId;
-    req.body.globalBalance = balanceGlobal;
+    // req.body.globalBalance = balanceGlobal;
     console.log('------------', req.body);
 
     const tr = await financeModel.create(req.body);
