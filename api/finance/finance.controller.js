@@ -71,7 +71,7 @@ async function addTr(req, res, next) {
 
     //transform date
     const reqDate = req.body.date;
-    const month = date.transform(reqDate, 'YYYY-MM-DD', 'MMM');
+    const month = date.transform(reqDate, 'YYYY-MM-DD', 'MMMM');
     const year = date.transform(reqDate, 'YYYY-MM-DD', 'YYYY');
 
     //add to req.body
@@ -152,8 +152,8 @@ async function getStats(req, res, next) {
 }
 
 function getStatsPercentage(allCosts, costs, category) {
-  const arrayOneCategory = allCosts.filter(item => item.category === category);
-  if (arrayOneCategory.length === 0) return null;
+  const arrayOneCategory = allCosts.filter(item => item.category === category); //allCosts -це маисив з type "-", фільтруємо по категорії н.п. food
+  if (arrayOneCategory.length === 0) return null; // вертаємо null якщо по категорії нема транзакцій
   const mapped = arrayOneCategory.map(item => item.amount);
   const resReduce = mapped.reduce((acc, item) => acc + item);
   const statsPercentage = (resReduce * 100) / costs;
