@@ -46,6 +46,7 @@ async function addTr(req, res, next) {
       userId: req.userId,
     });
 
+    //change balance
     if (type === '+' && allPositive.length > 0) {
       const { balance } = allPositive[allPositive.length - 1];
       req.body.balance = balance + amount;
@@ -56,13 +57,28 @@ async function addTr(req, res, next) {
       allNegative[allNegative.length - 1].balance = balance + amount;
     } else req.body.balance = amount;
 
-    // const costs = allNegative[allNegative.length - 1].balance;
-    // const inCome = allPositive[allPositive.length - 1].balance;
-    // const balanceGlobal = inCome - costs;
+    //change ballance загальний
+    let costs;
+    let inCome;
+    if (allNegative.length === 0) {
+      costs = 0;
+    } else costs = allNegative[allNegative.length - 1].balance;
 
+    if (allPositive.length === 0) {
+      inCome = 0;
+    } else inCome = allPositive[allPositive.length - 1].balance;
+    const balance = inCome - costs;
+
+    //transform date
+    const reqDate = req.body.date;
+    const month = date.transform(reqDate, 'YYYY-MM-DD', 'MMM');
+    const year = date.transform(reqDate, 'YYYY-MM-DD', 'YYYY');
+
+    //add to req.body
+    req.body.globalBalance = balance;
+    req.body.month = month;
+    req.body.year = year;
     req.body.userId = req.userId;
-    // req.body.globalBalance = balanceGlobal;
-    console.log('------------', req.body);
 
     const tr = await financeModel.create(req.body);
     return res.status(201).json(tr);
@@ -82,8 +98,6 @@ async function getData(req, res, next) {
 
 async function getStats(req, res, next) {
   try {
-    const userId = req.userId;
-
     const allCosts = await financeModel.find({
       type: '-',
       userId: req.userId,
@@ -93,8 +107,17 @@ async function getStats(req, res, next) {
       type: '+',
       userId: req.userId,
     });
-    const costs = allCosts[allCosts.length - 1].balance;
-    const inCome = allInCome[allInCome.length - 1].balance;
+
+    console.log(allCosts);
+    let costs;
+    let inCome;
+    if (allCosts.length === 0) {
+      costs = 0;
+    } else costs = allCosts[allCosts.length - 1].balance;
+
+    if (allInCome.length === 0) {
+      inCome = 0;
+    } else inCome = allInCome[allInCome.length - 1].balance;
     const balance = inCome - costs;
 
     const food = getStatsPercentage(allCosts, costs, 'food');
@@ -134,7 +157,7 @@ function getStatsPercentage(allCosts, costs, category) {
   const mapped = arrayOneCategory.map(item => item.amount);
   const resReduce = mapped.reduce((acc, item) => acc + item);
   const statsPercentage = (resReduce * 100) / costs;
-  return statsPercentage;
+  return resReduce;
 }
 
 async function authorize(req, res, next) {

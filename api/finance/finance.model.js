@@ -9,6 +9,8 @@ const financeSchema = new Schema({
   amount: { type: Number, required: true },
   balance: { type: Number, required: false, default: 0 },
   globalBalance: { type: Number, required: false },
+  month: { type: String },
+  year: { type: String },
 
   userId: { type: String, required: false },
 });
