@@ -120,14 +120,14 @@ async function getStats(req, res, next) {
     } else inCome = allInCome[allInCome.length - 1].balance;
     const balance = inCome - costs;
 
-    const food = getStatsPercentage(allCosts, costs, 'food');
-    const car = getStatsPercentage(allCosts, costs, 'car');
-    const SelfCare = getStatsPercentage(allCosts, costs, 'Self care');
-    const ChildCare = getStatsPercentage(allCosts, costs, 'Child care');
-    const House = getStatsPercentage(allCosts, costs, 'House');
-    const Education = getStatsPercentage(allCosts, costs, 'Education');
-    const Enterteinment = getStatsPercentage(allCosts, costs, 'Enterteinment');
-    const other = getStatsPercentage(allCosts, costs, 'Others');
+    const food = getStatsPercentage(allCosts, 'food');
+    const car = getStatsPercentage(allCosts, 'car');
+    const SelfCare = getStatsPercentage(allCosts, 'Self care');
+    const ChildCare = getStatsPercentage(allCosts, 'Child care');
+    const House = getStatsPercentage(allCosts, 'House');
+    const Education = getStatsPercentage(allCosts, 'Education');
+    const Enterteinment = getStatsPercentage(allCosts, 'Enterteinment');
+    const other = getStatsPercentage(allCosts, 'Others');
 
     const response = {
       costs,
@@ -151,12 +151,11 @@ async function getStats(req, res, next) {
   }
 }
 
-function getStatsPercentage(allCosts, costs, category) {
+function getStatsPercentage(allCosts, category) {
   const arrayOneCategory = allCosts.filter(item => item.category === category); //allCosts -це маисив з type "-", фільтруємо по категорії н.п. food
   if (arrayOneCategory.length === 0) return null; // вертаємо null якщо по категорії нема транзакцій
-  const mapped = arrayOneCategory.map(item => item.amount);
-  const resReduce = mapped.reduce((acc, item) => acc + item);
-  const statsPercentage = (resReduce * 100) / costs;
+  const mapped = arrayOneCategory.map(item => item.amount); // масив типу[100,10,50,122] по цій транзакції
+  const resReduce = mapped.reduce((acc, item) => acc + item); // сума масиву
   return resReduce;
 }
 

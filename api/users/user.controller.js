@@ -35,7 +35,10 @@ async function getUserById(req, res, next) {
 }
 async function getCurrentUser(req, res, next) {
   try {
+    console.log(req.user);
     const filtredUsers = getSomeField([req.user]);
+    // return res.status(200).json();
+
     return res.status(200).json(filtredUsers[0]);
   } catch (err) {
     next(err);
@@ -200,7 +203,7 @@ function getSomeField(users) {
   const filterUsers = users.map(user => ({
     email: user.email,
     id: user._id,
-    name: uses.name,
+    name: user.name,
   }));
 
   return filterUsers;
