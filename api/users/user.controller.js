@@ -2,42 +2,14 @@ const Joi = require('joi');
 const { ObjectId } = require('mongodb');
 const bcryptjs = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const AvatarGenerator = require('avatar-generator');
-const path = require('path');
-const { promises: fsPromises } = require('fs');
-const fs = require('fs');
-const multer = require('multer');
-const url = require('url');
-const uuid = require('uuid');
 
 const { UnauthorizedError } = require('../helpers/error.js');
 const usersModel = require('./user.model.js');
 
-async function getUsers(req, res, next) {
-  try {
-    const users = await usersModel.find();
-    const filtredUsers = getSomeField(users);
-
-    return res.status(200).json(filtredUsers);
-  } catch (err) {
-    next(err);
-  }
-}
-
-async function getUserById(req, res, next) {
-  try {
-    const userId = req.params.id;
-    const user = await usersModel.findOne({ _id: userId });
-    !user ? res.status(404).send() : res.status(200).json(user);
-  } catch (err) {
-    next(err);
-  }
-}
 async function getCurrentUser(req, res, next) {
   try {
     console.log(req.user);
     const filtredUsers = getSomeField([req.user]);
-    // return res.status(200).json();
 
     return res.status(200).json(filtredUsers[0]);
   } catch (err) {
@@ -45,15 +17,6 @@ async function getCurrentUser(req, res, next) {
   }
 }
 
-async function deleteUser(req, res, next) {
-  try {
-    const userId = req.params.id;
-    const user = await usersModel.findByIdAndDelete({ _id: userId });
-    !user ? res.status(404).send() : res.status(200).json();
-  } catch (err) {
-    next();
-  }
-}
 async function addNewUser(req, res, next) {
   try {
     const { email, password, passwordConfirm, name } = req.body;
@@ -164,8 +127,6 @@ function validateCreateUser(req, res, next) {
     name: Joi.string().required(),
     password: Joi.string().required(),
     passwordConfirm: Joi.string().required(),
-
-    subscription: Joi.string(),
     token: Joi.string(),
   });
   const result = createUserRules.validate(req.body);
@@ -189,16 +150,6 @@ function validateSignIn(req, res, next) {
   next();
 }
 
-function validateId(req, res, next) {
-  const { id } = req.params;
-
-  if (!ObjectId.isValid(id)) {
-    return res.status(400).send();
-  }
-
-  next();
-}
-
 function getSomeField(users) {
   const filterUsers = users.map(user => ({
     email: user.email,
@@ -211,11 +162,8 @@ function getSomeField(users) {
 
 module.exports = {
   addNewUser,
-  getUsers,
-  getUserById,
-  deleteUser,
+
   validateCreateUser,
-  validateId,
   signIn,
   validateSignIn,
   authorize,

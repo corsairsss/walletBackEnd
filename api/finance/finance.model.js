@@ -15,20 +15,6 @@ const financeSchema = new Schema({
   userId: { type: String, required: false },
 });
 
-// financeSchema.statics.findUserByIdAndUpdate = findUserByIdAndUpdate;
-
-// async function findUserByIdAndUpdate(contactId, updateParams) {
-//   return this.findByIdAndUpdate(
-//     contactId,
-//     {
-//       $set: updateParams,
-//     },
-//     {
-//       new: true,
-//     },
-//   );
-// }
-
 const financeModel = mongoose.model('Finance', financeSchema);
 
 module.exports = financeModel;
