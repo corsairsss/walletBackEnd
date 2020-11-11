@@ -27,9 +27,23 @@ module.exports = class ContactServer {
   initMiddlewares() {
     this.server.use(express.json());
     this.server.use(express.urlencoded());
-    this.server.use(
-      cors({ origin: 'https://final-team-project-wallet.netlify.app' }),
-    );
+
+    const whitelist = [
+      'https://final-team-project-wallet.netlify.app',
+      'http://localhost:3000',
+      'https://bmm-wallet.netlify.app',
+    ];
+    const corsOptions = {
+      origin: function (origin, callback) {
+        if (whitelist.indexOf(origin) !== -1) {
+          callback(null, true);
+        } else {
+          callback(new Error('Not allowed by CORS'));
+        }
+      },
+    };
+
+    this.server.use(cors(corsOptions));
   }
 
   initRoutes() {
