@@ -30,19 +30,9 @@ async function addTr(req, res, next) {
       allNegative[allNegative.length - 1].balance = balance + amount;
     } else req.body.balance = amount;
 
-    console.log('-----', req.body.type);
     //change ballance загальний
-    let costs;
-    let inCome;
-    if (allNegative.length === 0) {
-      costs = 0;
-    } else costs = allNegative[allNegative.length - 1].balance;
 
-    if (allPositive.length === 0) {
-      inCome = 0;
-    } else inCome = allPositive[allPositive.length - 1].balance;
-    const balance = inCome - costs;
-
+    const balance = 0;
     //transform date
     const reqDate = req.body.date;
     const month = date.transform(reqDate, 'YYYY-MM-DD', 'MMMM');
