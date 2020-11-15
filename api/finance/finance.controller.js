@@ -1,12 +1,10 @@
-const Joi = require('joi');
-const { ObjectId } = require('mongodb');
-const financeModel = require('./finance.model.js');
-const { UnauthorizedError } = require('../helpers/error.js');
 const jwt = require('jsonwebtoken');
 const axios = require('axios');
 const date = require('date-and-time');
+const { UnauthorizedError } = require('../helpers/error.js');
+const financeModel = require('./finance.model.js');
 
-async function addTr(req, res, next) {
+async function addTransaction(req, res, next) {
   try {
     const { type } = req.body;
     const amount = +req.body.amount;
@@ -30,16 +28,12 @@ async function addTr(req, res, next) {
       allNegative[allNegative.length - 1].balance = balance + amount;
     } else req.body.balance = amount;
 
-    //change ballance загальний
-
-    const balance = 0;
     //transform date
     const reqDate = req.body.date;
     const month = date.transform(reqDate, 'YYYY-MM-DD', 'MMMM');
     const year = date.transform(reqDate, 'YYYY-MM-DD', 'YYYY');
 
     //add to req.body
-    req.body.globalBalance = balance;
     req.body.month = month;
     req.body.year = year;
     req.body.userId = req.userId;
@@ -53,7 +47,6 @@ async function addTr(req, res, next) {
 async function getData(req, res, next) {
   try {
     const allTransaction = await financeModel.find({ userId: req.userId });
-    console.log(allTransaction);
     return res.status(200).json(allTransaction);
   } catch (err) {
     next(err);
@@ -106,7 +99,7 @@ async function getKurs(req, res, next) {
 }
 
 module.exports = {
-  addTr,
+  addTransaction,
   getData,
   authorize,
   getKurs,

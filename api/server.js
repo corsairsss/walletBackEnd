@@ -29,8 +29,8 @@ module.exports = class ContactServer {
     this.server.use(express.urlencoded());
 
     const whitelist = [
-      'https://final-team-project-wallet.netlify.app',
       'http://localhost:3000',
+      'https://final-team-project-wallet.netlify.app',
       'https://bmm-wallet.netlify.app',
     ];
     const corsOptions = {
@@ -42,6 +42,7 @@ module.exports = class ContactServer {
         }
       },
     };
+    // this.server.use(cors({ origin: 'http://localhost:3000' }));
 
     this.server.use(cors(corsOptions));
   }

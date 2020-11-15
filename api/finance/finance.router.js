@@ -1,7 +1,7 @@
 const express = require('express');
 
 const {
-  addTr,
+  addTransaction,
   getData,
   authorize,
   getKurs,
@@ -9,7 +9,7 @@ const {
 
 const userRouter = express.Router();
 
-userRouter.post('/addOperation', authorize, addTr);
+userRouter.post('/addOperation', authorize, addTransaction);
 userRouter.get('/getdata', authorize, getData);
 userRouter.get('/apiprivat', getKurs);
 

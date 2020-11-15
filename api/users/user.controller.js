@@ -67,6 +67,7 @@ async function signIn(req, res, next) {
     const { email, password } = req.body;
     const token = await checkUser(email, password);
     const userId = await jwt.verify(token, process.env.JWT_SECRET).id;
+
     const user = await usersModel.findOne({ _id: userId });
     if (user.verificationToken)
       return res.status(404).json({ mesage: 'User not Found' });
@@ -78,12 +79,9 @@ async function signIn(req, res, next) {
 
 async function authorize(req, res, next) {
   try {
-    // 1. витягнути токен користувача з заголовка Authorization
     const authorizationHeader = req.get('Authorization') || '';
     const token = authorizationHeader.replace('Bearer ', '');
 
-    // 2. витягнути id користувача з пейлоада або вернути користувачу
-    // помилку зі статус кодом 401
     let userId;
     try {
       userId = await jwt.verify(token, process.env.JWT_SECRET).id;
@@ -91,17 +89,11 @@ async function authorize(req, res, next) {
       next(new UnauthorizedError('User not authorized'));
     }
 
-    // 3. витягнути відповідного користувача. Якщо такого немає - викинути
-    // помилку зі статус кодом 401
-    // userModel - модель користувача в нашій системі
     const user = await usersModel.findById(userId);
-
     if (!user || user.token !== token) {
       throw new UnauthorizedError('User not authorized');
     }
 
-    // 4. Якщо все пройшло успішно - передати запис користувача і токен в req
-    // і передати обробку запиту на наступний middleware
     req.user = user;
     req.token = token;
 
@@ -162,7 +154,6 @@ function getSomeField(users) {
 
 module.exports = {
   addNewUser,
-
   validateCreateUser,
   signIn,
   validateSignIn,
