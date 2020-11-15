@@ -1,6 +1,8 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const whiteList = require('./constants/whiteList.js');
+
 require('dotenv').config();
 
 const financeRouter = require('./finance/finance.router');
@@ -8,7 +10,7 @@ const userRouter = require('./users/user.router');
 
 mongoose.set('debug', true);
 
-module.exports = class ContactServer {
+module.exports = class WalletServer {
   constructor() {
     this.server = null;
   }
@@ -28,14 +30,16 @@ module.exports = class ContactServer {
     this.server.use(express.json());
     this.server.use(express.urlencoded());
 
-    const whitelist = [
-      'http://localhost:3000',
-      'https://final-team-project-wallet.netlify.app',
-      'https://bmm-wallet.netlify.app',
-    ];
+    // const whitelist = [
+    //   'http://localhost:3000',
+    //   'https://final-team-project-wallet.netlify.app',
+    //   'https://bmm-wallet.netlify.app',
+    // ];
+    // console.log(whiteList);
+
     const corsOptions = {
       origin: function (origin, callback) {
-        if (whitelist.indexOf(origin) !== -1) {
+        if (whiteList.indexOf(origin) !== -1) {
           callback(null, true);
         } else {
           callback(new Error('Not allowed by CORS'));

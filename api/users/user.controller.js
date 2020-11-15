@@ -6,6 +6,8 @@ const jwt = require('jsonwebtoken');
 const { UnauthorizedError } = require('../helpers/error.js');
 const usersModel = require('./user.model.js');
 
+const timeLivingToken = 2592000000;
+
 async function getCurrentUser(req, res, next) {
   try {
     console.log(req.user);
@@ -19,9 +21,8 @@ async function getCurrentUser(req, res, next) {
 
 async function addNewUser(req, res, next) {
   try {
-    const { email, password, passwordConfirm, name } = req.body;
-    if (password !== passwordConfirm)
-      return res.status(400).json({ message: 'PASSWORDS MUST MATCH' });
+    const { email, password, name } = req.body;
+
     const passwordHash = await bcryptjs.hash(password, 4);
 
     const isEmailExist = await usersModel.findUserByEmail(email);
@@ -55,7 +56,7 @@ async function checkUser(email, password) {
   }
 
   const token = await jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-    expiresIn: 10000000,
+    expiresIn: timeLivingToken,
   });
   await usersModel.updateToken(user._id, token);
 

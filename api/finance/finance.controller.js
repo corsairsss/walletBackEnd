@@ -73,7 +73,7 @@ async function authorize(req, res, next) {
   }
 }
 
-async function getKurs(req, res, next) {
+async function getCurrency(req, res, next) {
   try {
     const day = date.format(new Date(), 'DD', true);
     const month = date.format(new Date(), 'MM', true);
@@ -102,5 +102,5 @@ module.exports = {
   addTransaction,
   getData,
   authorize,
-  getKurs,
+  getCurrency,
 };
